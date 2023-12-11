@@ -18,11 +18,15 @@ function App() {
     setItems((currItems) => currItems.map(item => item.id === id ? {...item, packed: !item.packed} : item))
   }
 
+  const handleDeleteAll = () => {
+    setItems([]);
+  }
+
   return (
     <div className="app">
       <Logo />
       <Form handleAddItems = {handleAddItems} />
-      <PackingList items={items} handleDeleteItem={handleDeleteItem} handleToggleItem={handleToggleItem} />
+      <PackingList items={items} handleDeleteItem={handleDeleteItem} handleToggleItem={handleToggleItem} handleDeleteAll={handleDeleteAll}/>
       <Stats items={items} />
     </div>
   );
@@ -87,7 +91,7 @@ const Form = ({handleAddItems}) => {
   );
 }
 
-const PackingList = ({items, handleDeleteItem, handleToggleItem}) => {
+const PackingList = ({items, handleDeleteItem, handleToggleItem, handleDeleteAll}) => {
   // The states for the select tag
   const [sortBy, setSortBy] = useState('input');
 
@@ -121,6 +125,8 @@ const PackingList = ({items, handleDeleteItem, handleToggleItem}) => {
             <option value="description">Sort by description</option>
             <option value="packed">Sort by packed status</option>
           </select>
+
+          <button onClick={handleDeleteAll}>Clear List</button>
       </div>
     </div>
   );
