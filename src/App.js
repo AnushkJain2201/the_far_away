@@ -14,11 +14,15 @@ function App() {
     setItems((currItems) => currItems.filter(item => item.id !== id))
   }
 
+  const handleToggleItem = (id) => {
+    setItems((currItems) => currItems.map(item => item.id === id ? {...item, packed: !item.packed} : item))
+  }
+
   return (
     <div className="app">
       <Logo />
       <Form handleAddItems = {handleAddItems} />
-      <PackingList items={items} handleDeleteItem={handleDeleteItem}/>
+      <PackingList items={items} handleDeleteItem={handleDeleteItem} handleToggleItem={handleToggleItem} />
       <Stats />
     </div>
   );
@@ -83,22 +87,23 @@ const Form = ({handleAddItems}) => {
   );
 }
 
-const PackingList = ({items, handleDeleteItem}) => {
+const PackingList = ({items, handleDeleteItem, handleToggleItem}) => {
   return (
     <div  className="list">
 
       <ul>
         {items.map(item => 
-          (<Item item={item} key={item.id} handleDeleteItem={handleDeleteItem} />
+          (<Item item={item} key={item.id} handleDeleteItem={handleDeleteItem} handleToggleItem={handleToggleItem} />
         ))}
       </ul>
     </div>
   );
 }
 
-const Item = ({item, handleDeleteItem}) => {
+const Item = ({item, handleDeleteItem, handleToggleItem}) => {
   return (
     <li>
+      <input type="checkbox" value={item.packed} onChange={() => {handleToggleItem(item.id)}} />
       <span style={item.packed ? {textDecoration: "line-through"} : {}}>
         {item.quantity} {item.description}
       </span>
