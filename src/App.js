@@ -23,7 +23,7 @@ function App() {
       <Logo />
       <Form handleAddItems = {handleAddItems} />
       <PackingList items={items} handleDeleteItem={handleDeleteItem} handleToggleItem={handleToggleItem} />
-      <Stats />
+      <Stats items={items} />
     </div>
   );
 }
@@ -88,14 +88,40 @@ const Form = ({handleAddItems}) => {
 }
 
 const PackingList = ({items, handleDeleteItem, handleToggleItem}) => {
+  // The states for the select tag
+  const [sortBy, setSortBy] = useState('input');
+
+  // This is a derived state that is based on the state items
+  let sortedItems;
+
+  // Here if the sortBy state is input we will simply set the sortedItems array will be equal to the original array
+  if(sortBy === 'input') sortedItems = items;
+
+  // Here we are using the slice() method first before using the sort method because the sort method is mutating method and React donot support mutating states
+  // localeCompare method compare string lexiographically
+  if(sortBy === 'description') sortedItems = items.slice().sort((a, b) => a.description.localeCompare(b.description));
+
+  // By this the packed items will be shown in the last
+  if(sortBy === 'packed') sortedItems = items.slice().sort((a, b) => Number(a.packed) - Number(b.packed));
+
+
   return (
     <div  className="list">
 
       <ul>
-        {items.map(item => 
+        {/* Here we are using the map method on the sortedItems array, this array will be changed according to the sortby state */}
+        {sortedItems.map(item => 
           (<Item item={item} key={item.id} handleDeleteItem={handleDeleteItem} handleToggleItem={handleToggleItem} />
         ))}
       </ul>
+
+      <div className="actions" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <select>
+            <option value="input">Sort by input order</option>
+            <option value="description">Sort by description</option>
+            <option value="packed">Sort by packed status</option>
+          </select>
+      </div>
     </div>
   );
 }
@@ -113,11 +139,22 @@ const Item = ({item, handleDeleteItem, handleToggleItem}) => {
   
 }
 
-const Stats = () => {
+const Stats = ({items}) => {
+  // If items are emprty then we will return the below element
+  if(!items.length) return <p className="stats"><em>Start Adding some items to your packing list 🚀</em></p>
+
+  // These all are derived states
+  const numItems = items.length;
+  const numPacked = items.filter(item => item.packed).length;
+  const percentage = Math.round((numPacked/numItems) * 100 );
+
   return (
     <footer className="stats">
 
-      <em>💼 You have X items on your list, and you already packed X (X%)</em>
+      <em>
+        {percentage === 100 ? 'You got everything! Ready to go ✈️' : `💼 You have ${numItems} items on your list, and you already packed ${numPacked} (${percentage}%)`}
+        
+      </em>
     </footer>
   );
 }
