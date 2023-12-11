@@ -1,16 +1,24 @@
 import { useState } from "react";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: true },
-];
-
 function App() {
+  // This piece of state is an array that denote the arrays of packagingitems
+  const [items, setItems] = useState([]);
+
+  const handleAddItems = (item) => {
+    // Here we are changing the state items according to the current state items, so we used the callback function
+    // And, React is all about immutability, so we cannot mutate the current state item array so instead we pass a new array where the old array get spread using the spread operator and we add the new state.
+    setItems((currItems) => [...currItems, item]);
+  }
+
+  const handleDeleteItem = (id) => {
+    setItems((currItems) => currItems.filter(item => item.id !== id))
+  }
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackingList />
+      <Form handleAddItems = {handleAddItems} />
+      <PackingList items={items} handleDeleteItem={handleDeleteItem}/>
       <Stats />
     </div>
   );
@@ -22,10 +30,14 @@ const Logo = () => {
   return <h1>🌴 The Far Away 🎒</h1>
 }
 
-const Form = () => {
+const Form = ({handleAddItems}) => {
   // This state is for the input field and then pass that state in the value attribute of that input field
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
+
+  
+
+  
 
   const handleSubmit = (e) => {
     // When we submit a form there will be a brief flash that happens due to the default behaviour of HTML, so to prevent this behaviour, we write the preventDefault method. But with this all the effects of HTML will be gone and we have to write the logic ourself.
@@ -38,6 +50,8 @@ const Form = () => {
     const newItem = {
       description, quantity, packed: false, id: Date.now()
     };
+
+    handleAddItems(newItem);
 
     // After submiting the form successfully, we will insert the default value in the input fields.
     setDescription("");
@@ -69,26 +83,26 @@ const Form = () => {
   );
 }
 
-const PackingList = () => {
+const PackingList = ({items, handleDeleteItem}) => {
   return (
     <div  className="list">
 
       <ul>
-        {initialItems.map(item => 
-          (<Item item={item} key={item.id}/>
+        {items.map(item => 
+          (<Item item={item} key={item.id} handleDeleteItem={handleDeleteItem} />
         ))}
       </ul>
     </div>
   );
 }
 
-const Item = ({item}) => {
+const Item = ({item, handleDeleteItem}) => {
   return (
     <li>
       <span style={item.packed ? {textDecoration: "line-through"} : {}}>
         {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => handleDeleteItem(item.id)}>❌</button>
     </li>
   );
   
